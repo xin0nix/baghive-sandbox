@@ -8,36 +8,26 @@ If you want Podman to search all registries by default, you can set the registri
 registries = ['*']
 ```
 
-## Pulsar
+By default, podman-compose looks for a file named podman-compose.yaml or podman-compose.yml in the current working directory. If it finds one of these files, it will use it as the configuration file.
+```sh
+podman-compose up
+```
+> The -d flag tells Podman Compose to run the container in detached mode, meaning it will run in the background.
+If you want to suppress podman-compose output, use it.
 
-First, you need to pull the Apache Pulsar image from Docker Hub. Podman can use Docker Hub images directly.
+To verify that the container is running, you can use the following command:
 ```sh
-podman pull apachepulsar/pulsar-all:3.3.1
+podman ps
 ```
-Run Apache Pulsar in standalone mode to enable message processing and streaming capabilities. This setup allows for easy testing and development of Pulsar-based applications.
+This will list all running containers, including the one created by Podman Compose.
+
+To stop the container, you can use the following command:
 ```sh
-podman run -d --name pulsar-all \
-  --replace \
-  -p 6680:8080 -p 6650:6650 \
-  -v $PWD/config/pulsar/broker.conf:/conf/broker.conf \
-  apachepulsar/pulsar:3.3.1 \
-  bin/pulsar standalone;
+podman-compose down
 ```
+
 To verify that the container is running correctly, check check the container logs:
 > This will show you the output of the container, including any errors or warnings.
 ```sh
 podman logs -f pulsar-all
-```
-You can also check the container status:
-```sh
-podman ps -a
-```
-If you want to stop the container, you can use:
-```sh
-podman stop pulsar-all
-```
-And if you want to delete the container, you can use:
-> Note that deleting the container will also delete any data stored in the container's filesystem.
-```sh
-podman rm pulsar-all
 ```
