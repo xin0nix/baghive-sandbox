@@ -11,7 +11,10 @@ If you want Podman to search all registries by default, you can set the registri
 [registries.search]
 registries = ['*']
 ```
-
+Podman supports Docker Secrets, which allow you to store sensitive data, such as database credentials, securely.
+```sh
+podman secret create postgres-creds ./config/postgres/postgres-creds-example.env
+```
 By default, podman-compose looks for a file named podman-compose.yaml or podman-compose.yml in the current working directory. If it finds one of these files, it will use it as the configuration file.
 ```sh
 podman-compose up
