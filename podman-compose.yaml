@@ -1,0 +1,12 @@
+version: '3.0'
+services:
+  pulsar:
+    image: apachepulsar/pulsar-all:3.3.1
+    container_name: pulsar-all
+    restart: always
+    ports:
+      - "6680:8080"
+      - "6650:6650"
+    volumes:
+      - ./config/pulsar/broker.conf:/conf/broker.conf
+    command: bin/pulsar standalone
