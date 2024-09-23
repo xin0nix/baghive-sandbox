@@ -58,10 +58,9 @@ CREATE TABLE barcodes (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table to store photos
-CREATE TABLE photos (
-    id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES clients(id),
-    photo BYTEA NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+-- Table to store photos (URL leads to NoSQL storage)
+CREATE TABLE user_photos (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  photo_url VARCHAR(255) NOT NULL
 );
