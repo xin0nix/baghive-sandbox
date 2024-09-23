@@ -9,7 +9,7 @@ sudo apt-get install -y podman podman-compose postgresql-client
 If you want Podman to search all registries by default, you can set the registries.conf file to search all registries. To do this, edit the `/etc/containers/registries.conf` file and add the following line:
 ```conf
 [registries.search]
-registries = ['*']
+registries = ['docker.io']
 ```
 Podman supports Docker Secrets, which allow you to store sensitive data, such as database credentials, securely.
 ```sh
