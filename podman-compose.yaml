@@ -3,7 +3,8 @@ services:
   pulsar:
     image: apachepulsar/pulsar-all:3.3.1
     container_name: pulsar-all
-    restart: always
+    restart: never
+    replace: always
     ports:
       - "6680:8080"
       - "6650:6650"
@@ -14,20 +15,18 @@ services:
   postgres:
     image: postgres:13
     container_name: postgres
-    restart: always
-    secrets:
-      - postgres-creds
+    restart: never
+    replace: always
     environment:
-      - POSTGRES_USER=/run/secrets/postgres-creds:POSTGRES_USER
-      - POSTGRES_PASSWORD=/run/secrets/postgres-creds:POSTGRES_PASSWORD
-      - POSTGRES_DB=/run/secrets/postgres-creds:POSTGRES_DB
+    #FIXME: DO NOT USE IN PRODUCTION 
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=baghive_db
+      - PGDATA=/var/lib/postgresql/data
     ports:
       - "5432:5432"
     volumes:
+    #FIXME: make location of the volume on the host configurable
       - ./postgres-data:/var/lib/postgresql/data
       - ./config/postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
-
-secrets:
-  postgres-creds:
-    external: true
