@@ -20,7 +20,7 @@ def main():
     producer.send(json.dumps(message).encode("utf-8"))
 
     # Wait for response
-    msg = consumer.receive(timeout_millis=30000)  # 30 seconds timeout
+    msg = consumer.receive(timeout_millis=None)  # 30 seconds timeout
     try:
         print(f"Received response: {msg.data().decode('utf-8')}")
     except Exception as e:

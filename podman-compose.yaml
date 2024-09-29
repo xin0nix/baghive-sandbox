@@ -3,7 +3,6 @@ services:
   pulsar:
     image: apachepulsar/pulsar-all:3.3.1
     container_name: pulsar-all
-    restart: never
     replace: always
     ports:
       - "6680:8080"
@@ -15,7 +14,6 @@ services:
   postgres:
     image: postgres:13
     container_name: postgres
-    restart: never
     replace: always
     environment:
     #FIXME: DO NOT USE IN PRODUCTION 

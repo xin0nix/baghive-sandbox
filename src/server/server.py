@@ -18,7 +18,7 @@ def main():
     response_producer = client.create_producer(response_topic)
 
     while True:
-        msg = request_consumer.receive(timeout_millis=30000)  # 30 seconds timeout
+        msg = request_consumer.receive(timeout_millis=None)  # No timemout
         try:
             print(f"Received request: {msg.data().decode('utf-8')}")
             # Echo the message back
