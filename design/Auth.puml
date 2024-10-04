@@ -1,0 +1,51 @@
+@startuml "Deployment"
+
+node "Client" as client <<web or mobile application>>
+note right of client
+  Stores and manages JWT token securely
+end note
+
+node "Client Backend" as client_backend <<proxy>>
+note right of client_backend
+  Relays requests and responses between Client and back-end services
+  Validates and sanitizes user input
+end note
+
+node "Authentication Service" as auth_service <<service>>
+note right of auth_service
+  Handles authentication logic
+  Generates and verifies codes
+  Issues JWT tokens
+  Manages user authentication data and session state
+end note
+
+node "Core Service" as core_service <<service>>
+note right of core_service
+  Provides main logic
+  Accesses database
+  Verifies JWT tokens for authenticated requests
+  Enforces access control and authorization policies
+end note
+
+node "SMS Service" as sms_service <<proxy>>
+note right of sms_service
+  Routes SMS requests to external services
+  Handles responses from external services
+end note
+
+node "Pulsar Message Broker" as pulsar <<message broker>> #blue
+note right of pulsar
+  Enables pub-sub communication between services
+end note
+
+client --> client_backend : requests
+client_backend --> auth_service : authentication requests
+client_backend --> core_service : business logic requests
+auth_service --> pulsar : publishes authentication events
+core_service --> pulsar : publishes business logic events
+sms_service --> pulsar : publishes SMS requests
+pulsar --> sms_service : delivers SMS responses
+pulsar --> core_service : delivers business logic events
+pulsar --> auth_service : delivers authentication events
+
+@enduml
