@@ -1,37 +1,63 @@
 # User Authentication
 
-## Overview
-This documentation is intended for developers and system administrators who need to understand the authentication process and its components.
+> This design is subject to change. We do not intend to keep it identical to the actual code, but the overall direction will remain the same.
 
-## Services and their Responsibilities
-This section describes the roles and responsibilities of each service in the system.
+## Services and Their Responsibilities
+Our microservice architecture is designed to provide a scalable and secure system. Each service plays a critical role in ensuring the smooth operation of our application.
+### Client
+The client initiates the authentication process and receives a JSON Web Token (JWT). It is responsible for securely storing and managing the JWT, which is used to authenticate subsequent requests.
+### Client Backend
+The client backend acts as a proxy, relaying requests and responses between the client and our backend services. It validates and sanitizes user input to prevent security vulnerabilities and ensures that data is properly formatted.
+### Authentication Service
+This service handles all authentication-related logic, including generating and verifying codes, and issuing JWTs. It is responsible for managing user authentication data and session state, ensuring that only authorized users can access our system.
+### Core Service
+The core service provides the main business logic of our application and has access to our PostgreSQL database. It verifies JWTs for authenticated requests and enforces access control and authorization policies to ensure that users can only access authorized resources.
+### SMS Service
+The SMS service acts as a proxy between our internal system and external SMS services, sending messages to users on behalf of our application. It routes SMS requests to the appropriate external service and handles responses, ensuring that users receive timely and relevant updates.
+### Pulsar Message Broker
+The Pulsar Message Broker is a messaging system that enables our services to communicate with each other in a publish-subscribe manner. It provides a scalable and fault-tolerant way for our services to exchange data and ensures that our system remains highly available.
 
-1. Client
+```mermaid
+graph LR
+    client --> client_backend
+    client_backend <--> pulsar
+    auth_service <--> pulsar
+    sms_service <--> pulsar
+    core_service <--> pulsar
+    core_service <--> postgres
+    
+    subgraph Client
+        client[Client's app like a phone or a browser page]
+    end
+    
+    subgraph Backend Services
+        client_backend[
+            **Client Backend**
+            A proxy between the client and back-end services, HTTPS come in, Pulsar messages go out
+        ]
+        auth_service[
+            **Authentication Service**
+            Handles authentication logic, generates and verifies codes, and issues JWT tokens
+        ]
+        core_service[
+            **Core Service**
+            Main logic, accesses the postgres, verifies JWT tokens for authenticated requests
+        ]
+        sms_service[
+            **SMS Service**
+            Routes SMS requests to external services and handles responses from those services
+        ]
+    end
 
-Initiates the authentication process and receives the JWT token. Responsible for storing and managing the JWT token securely. The Client is typically a web or mobile application that interacts with the system.
-
-2. Client Backend
-
-Acts as a proxy, relaying requests and responses between the Client (front-end) and both the Authentication and the Core Service (back-end). Responsible for validating and sanitizing user input.
-
-3. Authentication Service
-
-Handles authentication logic, generates and verifies codes, and issues JWT tokens. Responsible for managing user authentication data and session state.
-
-4. Core Service
-
-Provides the main logic and has access to the database. Verifies JWT tokens for authenticated requests.
-Responsible for enforcing access control and authorization policies.
-
-5. SMS Service
-
-Acts as a proxy between our internal system and external SMS services, sending SMS messages to users on behalf of the system. Responsible for routing SMS requests to the appropriate external service and handling responses.
-
-6. Pulsar Message Broker
-
-The Pulsar Message Broker is a messaging system that enables communication between services in a pub-sub manner.
+    subgraph Storage and Communication
+        pulsar[**Pulsar Message Broker**]
+        postgres[**Postgres Database**]
+    end
+```
 
 ## Authentication Flow
+
+The following sequence diagram illustrates the authentication process, highlighting the interactions between the Client, Client Backend, Authentication Service, and SMS Service.
 
 ```mermaid
 sequenceDiagram
@@ -64,24 +90,14 @@ sequenceDiagram
     Client->>Client: Store JWT token securely
 ```
 
-This section describes the sequence of events that occur during the authentication process.
-1. Initiation
-* The Client sends a request to the Client Backend to initiate the authentication process (e.g., providing their phone number).
-* The Client Backend sends a request to the Authentication Service to initiate authentication (e.g., auth:init).
-* The Authentication Service generates a random code and sends a request to the SMS Service to send an SMS with the code to the client's phone number.
+As shown in the diagram, the authentication process begins with the Client initiating the authentication process by sending a request to the Client Backend. The Client Backend then sends a request to the Authentication Service to initiate authentication.
 
-2. Code Generation and SMS Sending
-* The SMS Service sends the SMS and notifies the Authentication Service of the result (e.g., success or failure).
-* The Authentication Service stores the code and its associated metadata (e.g., expiration time).
+The Authentication Service generates a random code and sends a request to the SMS Service to send an SMS with the code to the client's phone number. The SMS Service sends the SMS and notifies the Authentication Service of the result.
 
-3. Code Verification
-* The client receives the SMS and enters the code on their device.
-* The Client sends the code to the Client Backend, which then sends a request to the Authentication Service to verify the code (e.g., auth:verify).
-* The Authentication Service verifies the code and generates a JWT token if the code is correct.
+Once the client receives the SMS, they enter the code on their device, and the Client Backend sends a request to the Authentication Service to verify the code. The Authentication Service verifies the code and generates a JWT token if the code is correct.
 
-4. JWT Token Return
-* The Authentication Service returns the JWT token to the Client Backend, which then returns it to the Client.
-* The Client stores the JWT token securely and uses it to authenticate subsequent requests.
+Finally, the Authentication Service returns the JWT token to the Client Backend, which then returns it to the Client. The Client stores the JWT token securely and uses it to authenticate subsequent requests.
+Note that the diagram highlights the alternative path taken when the code is incorrect. In this case, the Authentication Service returns an error to the Client Backend, which is then propagated to the Client.
 
 ## JWT Verification by the Core Service
 The verification process is critical for ensuring that only authenticated users can access protected resources. To verify JWT tokens, the Core Service needs to know the secret key used to sign the tokens. We use Public Key Infrastructure (PKI), where the Authentication Service uses a private key to sign JWT tokens, and the Core Service uses the corresponding public key to verify the tokens.
