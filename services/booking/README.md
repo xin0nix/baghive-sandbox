@@ -1,9 +1,15 @@
 ## How to build
 
 ```sh
-sudo apt-get install -y  libssl-dev libcurl4-openssl-dev libpq-dev \
-    libboost1.83-dev libgmock-dev libgtest-dev g++ cmake \
-    libprotobuf-dev libboost-all-dev protobuf-compiler
+sudo apt-get install -y build-essential \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libpq-dev \
+    libgmock-dev \
+    libgtest-dev \
+    libboost-all-dev \
+    libprotobuf-dev \
+    protobuf-compiler;
 ```
 
 ```sh
