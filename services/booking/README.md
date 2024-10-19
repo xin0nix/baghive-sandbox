@@ -1,7 +1,10 @@
 ## How to build
 
+Tested on:
+- Ubuntu 22.04
 ```sh
 sudo apt-get install -y cmake \
+    ninja-build \
     build-essential \
     libssl-dev \
     libcurl4-openssl-dev \

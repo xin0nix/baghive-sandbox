@@ -1,5 +1,4 @@
 #include <iostream>
-#include <pulsar/Client.h>
 #include <soci/soci.h>
 
 int main() {
