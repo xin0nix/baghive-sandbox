@@ -1,7 +1,8 @@
 ## How to build
 
 ```sh
-sudo apt-get install -y build-essential \
+sudo apt-get install -y cmake \
+    build-essential \
     libssl-dev \
     libcurl4-openssl-dev \
     libpq-dev \
