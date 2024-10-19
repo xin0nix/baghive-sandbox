@@ -13,6 +13,7 @@ sudo apt-get install -y cmake \
     libgtest-dev \
     libboost-all-dev \
     libprotobuf-dev \
+    cppzmq-dev \
     protobuf-compiler;
 ```
 

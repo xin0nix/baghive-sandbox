@@ -10,6 +10,7 @@ include(FetchContent)
 find_package(Boost 1.74 REQUIRED)
 find_package(GTest 1.11 REQUIRED)
 find_package(OpenSSL 3.0.2 REQUIRED)
+find_package(cppzmq 4.10.0 REQUIRED)
 
 # SOCI - C++ ORM
 FetchContent_Declare(
@@ -21,12 +22,8 @@ FetchContent_MakeAvailable(Soci)
 
 add_executable(BookingService src/main.cpp)
 
-target_include_directories(BookingService PRIVATE
-    "${CMAKE_CURRENT_BINARY_DIR}/_deps/soci-build/include"
-    "${CMAKE_CURRENT_BINARY_DIR}/_deps/soci-src/include/"
-)
-
 target_link_libraries(BookingService PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto
+    cppzmq
 )
