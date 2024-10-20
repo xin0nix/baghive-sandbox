@@ -1,71 +1,31 @@
-CREATE SCHEMA baghive;
-
--- Table to store clients
-CREATE TABLE baghive.clients (
-    id SERIAL PRIMARY KEY,
-    phone_number VARCHAR(20) NOT NULL UNIQUE,
-    name VARCHAR(100),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
+-- Create the schema for booking
+CREATE SCHEMA booking;
 -- Table to store locker statuses
-CREATE TABLE baghive.locker_statuses (
+CREATE TABLE booking.locker_statuses (
     id SERIAL PRIMARY KEY,
-    status VARCHAR(20) NOT NULL UNIQUE
+    status VARCHAR(20) NOT NULL UNIQUE,
+    description TEXT
 );
-
 -- Insert the allowed status values
-INSERT INTO baghive.locker_statuses (status)
-VALUES ('available'), ('occupied'), ('maintenance');
-
+INSERT INTO booking.locker_statuses (status, description)
+VALUES ('available', 'Locker is available for rental'),
+    ('occupied', 'Locker is currently rented out'),
+    ('maintenance', 'Locker is under maintenance');
 -- Table to store lockers
-CREATE TABLE baghive.lockers (
+CREATE TABLE booking.lockers (
     id SERIAL PRIMARY KEY,
     locker_number INTEGER NOT NULL UNIQUE,
-    status_id INTEGER NOT NULL REFERENCES baghive.locker_statuses(id),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    status_id INTEGER NOT NULL REFERENCES booking.locker_statuses(id),
+    location VARCHAR(50) -- Removed the comma here as it's the last column
 );
-
--- Table to store rental types
-CREATE TABLE baghive.rental_types (
-    id SERIAL PRIMARY KEY,
-    rental_duration INTEGER NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Table to store rentals
-CREATE TABLE baghive.rentals (
+CREATE TABLE booking.rentals (
     id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES baghive.clients(id),
-    locker_id INTEGER NOT NULL REFERENCES baghive.lockers(id),
-    rental_type_id INTEGER NOT NULL REFERENCES baghive.rental_types(id),
-    start_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    end_time TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table to store SMS authorization codes
-CREATE TABLE baghive.sms_authorization_codes (
-    id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES baghive.clients(id),
-    code VARCHAR(6) NOT NULL,
-    expiration_time TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table to store barcodes
-CREATE TABLE baghive.barcodes (
-    id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES baghive.clients(id),
-    barcode VARCHAR(20) NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table to store photos (URL leads to NoSQL storage)
-CREATE TABLE baghive.client_photos (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES baghive.clients(id),
-    photo_url VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    client_id INTEGER NOT NULL,
+    -- Reference to external client service
+    locker_id INTEGER NOT NULL REFERENCES booking.lockers(id),
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    -- Nullable for ongoing rentals
+    status VARCHAR(20) NOT NULL DEFAULT 'occupied' -- Rental status tracking
 );
