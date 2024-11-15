@@ -43,3 +43,8 @@ Here's how you can connect to the PostgreSQL database using the psql command-lin
 ```sh
 podman exec -it postgres psql -U myuser baghive_db
 ```
+You can setup podman to work with dev.containers instead of docker in VS Code.
+The following command will provide you with a list of sockets:
+```sh
+podman system connection list
+```
